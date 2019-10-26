@@ -29,9 +29,7 @@ class AttBiLSTM(nn.Module):
 
         self.lstm_dropout = nn.Dropout(p=self.dropout_rate)
         self.attention_weights = nn.Parameter(torch.randn(1, self.lstm_concated_dim, 1))
-        self.linear_layers = nn.ModuleList([nn.Sequential(nn.Linear(self.lstm_concated_dim, self.lstm_concated_dim),
-                                                          nn.Dropout(p=self.dropout_rate),
-                                                          nn.ReLU())
+        self.linear_layers = nn.ModuleList([nn.Linear(self.lstm_concated_dim, self.lstm_concated_dim)
                                             for _ in range(self.n_linear - 1)])
         self.linear_dropout = nn.Dropout(p=self.dropout_rate)
 
@@ -70,9 +68,9 @@ class AttBiLSTM(nn.Module):
         lstm_output = self.lstm_dropout(lstm_output)
 
         x = self.attention(lstm_output, h_n, x)
-
         x = [linear_layer(x) for linear_layer in self.linear_layers]
-
+        x = self.linear_dropout(x)
+        x = F.relu(x)
         logits = self.sm_layer(x)
 
         return logits
