@@ -67,7 +67,7 @@ def train(args):
             logits = model(batch.input)
             logits_flat = logits.view(-1, logits.size(-1))
             target_flat = batch.tgt.view(-1)
-            loss = criterion(logits_flat, batch.tgt)
+            loss = criterion(logits_flat, target_flat)
             pred_flat = logits_flat.max(dim=-1)[1]
             acc = (pred_flat == target_flat).sum()
 
