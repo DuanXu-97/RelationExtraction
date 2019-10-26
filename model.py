@@ -31,7 +31,7 @@ class AttBiLSTM(nn.Module):
         self.attention_weights = nn.Parameter(torch.randn(1, self.lstm_concated_dim, 1))
         self.linear_layers = nn.ModuleList([nn.Sequential(nn.Linear(self.lstm_concated_dim, self.lstm_concated_dim),
                                                           nn.Dropout(p=self.dropout_rate),
-                                                          F.relu())
+                                                          nn.ReLU())
                                             for _ in range(self.n_linear - 1)])
         self.linear_dropout = nn.Dropout(p=self.dropout_rate)
 
