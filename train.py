@@ -1,11 +1,13 @@
 import argparse
 import torch
+import pdb
 from load_data import *
 from model import *
 from hyperparameters import *
 from model import AttBiLSTM
-from eval import *
-import load_data as ld
+from evaluate import Validator, Predictor
+from torch import optim
+from tqdm import tqdm
 
 
 def train(args):
@@ -40,6 +42,61 @@ def train(args):
     predictor = Predictor(args.save_vocab_fname)
 
     model = model.to(device)
+    criterion = nn.CrossEntropyLoss().to(device)
+    optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
+
+    if args.load_model:
+        predictor.use_pretrained_model(args.load_model, device=device)
+        pdb.set_trace()
+        predictor.pred_sent(dataset.INPUT)
+        tester.final_evaluate(predictor.model)
+        return
+
+    for epoch in range(config.epochs):
+        if epoch - validator.best_epoch > 10:
+            return
+
+        model.train()
+        pbar = tqdm(train_dl)
+        total_loss = 0
+        n_correct = 0
+        cnt = 0
+        for batch in pbar:
+            batch_size = len(batch.tgt)
+
+            logits = model(batch.input)
+            logits_flat = logits.view(-1, logits.size(-1))
+            target_flat = batch.tgt.view(-1)
+            loss = criterion(logits_flat, batch.tgt)
+            pred_flat = logits_flat.max(dim=-1)[1]
+            acc = (pred_flat == target_flat).sum()
+
+            total_loss += loss.item() * batch_size
+            cnt += batch_size
+            n_correct += acc
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            if cnt % (5 * batch_size) == 0:
+                pbar.set_description('E{:02d}, loss:{:.4f}, acc:{:.4f}, lr:{}'
+                                     .format(epoch,
+                                             total_loss / cnt if cnt else 0,
+                                             n_correct / cnt if cnt else 0,
+                                             optimizer.param_groups[0]['lr']))
+                pbar.refresh()
+
+        model.eval()
+        validator.evaluate(model, epoch)
+        summ = {
+            'Eval': '(e{:02d},train)'.format(epoch),
+            'loss': total_loss / cnt,
+            'acc': n_correct / cnt,
+        }
+        validator.write_summary(summ=summ)
+        validator.write_summary(epoch=epoch)
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -48,8 +105,12 @@ if __name__ == '__main__':
     parser.add_argument('--train_fname', type=str, default='train.csv', help="the filename of training data")
     parser.add_argument('--valid_fname', type=str, default='valid.csv', help="the filename of validation data")
     parser.add_argument('--test_fname', type=str, default='test.csv', help="the filename of test data")
-
-
+    parser.add_argument('--load_model', type=str, default='', help="path to pretrained model")
+    parser.add_argument('--save_dir', type=str, default='tmp/', help='directory to save output files')
+    parser.add_argument('--save_log_fname', type=str, default='run_log.txt', help='file name to save training logs')
+    parser.add_argument('--save_model_fname', type=str, default='model', help='file to torch.save(model)')
+    parser.add_argument('--save_vocab_fname', type=str, default='vocab.json', help='file name to save vocab')
 
     args = parser.parse_args()
     train(args)
+

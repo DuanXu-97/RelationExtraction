@@ -77,6 +77,30 @@ class AttBiLSTM(nn.Module):
 
         return logits
 
+    def loss(self, input, target):
+        logits = self.forward(input)
+        logits_flat = logits.view(-1, logits.size(-1))
+        target_flat = target.view(-1)
+        loss = self.crit(logits_flat, target_flat)  # mean_score per batch
+        return loss
+
+    def predict(self, input):
+        logits = self.forward(input)
+        logits[:, :2] = float('-inf')
+        preds = logits.max(dim=-1)[1]
+        preds = preds.detach().cpu().numpy().tolist()
+        return preds
+
+    def loss_n_acc(self, input, target):
+        logits = self.forward(input)
+        logits_flat = logits.view(-1, logits.size(-1))
+        target_flat = target.view(-1)
+        loss = self.crit(logits_flat, target_flat)  # mean_score per batch
+
+        pred_flat = logits_flat.max(dim=-1)[1]
+        acc = (pred_flat == target_flat).sum()
+        return loss, acc.item()
+
 
 
 
