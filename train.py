@@ -56,8 +56,8 @@ def train(args):
         return
 
     for epoch in range(config.epochs):
-        if epoch - validator.best_epoch > 10:
-            return
+        # if epoch - validator.best_epoch > 10:
+        #     return
 
         model.train()
         pbar = tqdm(train_dl)

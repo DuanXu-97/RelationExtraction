@@ -8,13 +8,13 @@ from model import AttBiLSTM
 
 
 class Validator:
-    def __init__(self, dataloader=None, save_log_fname='tmp/run_log.txt',
-                 save_model_fname='tmp/model.torch', save_dir='tmp/',
+    def __init__(self, dataloader=None, save_log_fname='run_log.txt',
+                 save_model_fname='model.torch', save_dir='tmp/',
                  valid_or_test='valid', vocab_itos=dict(), label_itos=dict()):
         self.avg_loss = 0
         self.dataloader = dataloader
-        self.save_log_fname = save_log_fname
-        self.save_model_fname = save_model_fname
+        self.save_log_fname = os.path.join(save_dir, save_log_fname)
+        self.save_model_fname = os.path.join(save_dir, save_model_fname)
         self.valid_or_test = valid_or_test
         self.best_loss = float('inf')
         self.best_epoch = 0
