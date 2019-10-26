@@ -17,13 +17,6 @@ def train(args):
     else:
         device = torch.device('cpu')
 
-    if args.model == 'AttBiLSTM':
-        config = AttBiLSTMHP()
-        model = AttBiLSTM(config)
-    else:
-        config = None
-        model = None
-
     dataset = Dataset(data_dir=args.data_dir, train_fname=args.train_fname,
                       valid_fname=args.valid_fname, test_fname=args.test_fname,)
 
@@ -40,6 +33,14 @@ def train(args):
                        vocab_itos=dataset.INPUT.vocab.itos,
                        label_itos=dataset.TGT.vocab.itos)
     predictor = Predictor(args.save_vocab_fname)
+
+    if args.model == 'AttBiLSTM':
+        config = AttBiLSTMHP()
+        config.num_classes = len(dataset.TGT.vocab)
+        model = AttBiLSTM(config)
+    else:
+        config = None
+        model = None
 
     model = model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
