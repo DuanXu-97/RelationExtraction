@@ -6,7 +6,7 @@ class AttBiLSTMHP:
         self.learning_rate = 1e-4
         self.dropout_rate = 0.1
         self.epochs = 300
-        self.num_classes = 1
+        self.num_classes = 10
 
         self.vocab_size = 50000
         self.sequence_len = 100
