@@ -3,7 +3,7 @@ from torch import nn
 import torch.nn.functional as F
 
 
-class AttentionBasedBiLSTM(nn.Module):
+class AttBiLSTM(nn.Module):
     def __init__(self, config):
         super().__init__()
 

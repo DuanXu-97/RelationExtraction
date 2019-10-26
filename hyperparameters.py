@@ -1,6 +1,6 @@
 
 
-class HyperParameters:
+class AttBiLSTMHP:
     def __init__(self):
         self.batch_size = 64
         self.learning_rate = 1e-4
