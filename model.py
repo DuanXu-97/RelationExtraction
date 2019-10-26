@@ -68,9 +68,12 @@ class AttBiLSTM(nn.Module):
         lstm_output = self.lstm_dropout(lstm_output)
 
         x = self.attention(lstm_output, h_n, x)
-        x = [linear_layer(x) for linear_layer in self.linear_layers]
-        x = self.linear_dropout(x)
-        x = F.relu(x)
+
+        for layer in self.linear_layers:
+            x = layer(x)
+            x = self.linear_dropout(x)
+            x = F.relu(x)
+
         logits = self.sm_layer(x)
 
         return logits
