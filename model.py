@@ -20,6 +20,8 @@ class AttBiLSTM(nn.Module):
         self.num_classes = config.num_classes
         self.dropout_rate = config.dropout_rate
 
+        self.criterion = nn.CrossEntropyLoss()
+
         self.embedding_layer = nn.Embedding(self.vocab_size, self.embedding_size)
 
         self.lstm = nn.LSTM(self.embedding_size, self.lstm_dim,

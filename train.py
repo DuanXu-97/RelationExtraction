@@ -42,7 +42,6 @@ def train(args):
     predictor = Predictor(args.save_vocab_fname)
 
     model = model.to(device)
-    criterion = nn.CrossEntropyLoss().to(device)
     optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
 
     if args.load_model:
@@ -64,13 +63,7 @@ def train(args):
         for batch in pbar:
             batch_size = len(batch.tgt)
 
-            logits = model(batch.input)
-            logits_flat = logits.view(-1, logits.size(-1))
-            target_flat = batch.tgt.view(-1)
-            loss = criterion(logits_flat, target_flat)
-            pred_flat = logits_flat.max(dim=-1)[1]
-            acc = (pred_flat == target_flat).sum()
-
+            loss, acc = model.loss_n_acc(batch.input, batch.tgt)
             total_loss += loss.item() * batch_size
             cnt += batch_size
             n_correct += acc
