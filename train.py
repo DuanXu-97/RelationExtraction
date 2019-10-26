@@ -24,7 +24,7 @@ def train(args):
         config = None
         model = None
 
-    dataset = Dataset(data_dir=args.save_dir, train_fname=args.train_fname,
+    dataset = Dataset(data_dir=args.data_dir, train_fname=args.train_fname,
                       valid_fname=args.valid_fname, test_fname=args.test_fname,)
 
     train_dl, valid_dl, test_dl = dataset.get_dataloader(batch_size=config.batch_size, device=device)
@@ -102,6 +102,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='AttBiLSTM', help="The model to be trained")
     parser.add_argument('--use_gpu', type=int, default=1, help="whether use gpu")
+    parser.add_argument('--data_dir', type=str, default='data/', help='directory to data files')
     parser.add_argument('--train_fname', type=str, default='train.csv', help="the filename of training data")
     parser.add_argument('--valid_fname', type=str, default='valid.csv', help="the filename of validation data")
     parser.add_argument('--test_fname', type=str, default='test.csv', help="the filename of test data")
