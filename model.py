@@ -71,7 +71,7 @@ class AttBiLSTM(nn.Module):
 
         x = self.attention(lstm_output, h_n, x)
 
-        x = self.linear_layers(x)
+        x = [linear_layer(x) for linear_layer in self.linear_layers]
 
         logits = self.sm_layer(x)
 
