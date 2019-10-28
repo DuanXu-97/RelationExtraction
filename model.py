@@ -15,6 +15,7 @@ class AttBiLSTM(nn.Module):
         self.lstm_dim = config.lstm_dim
         self.lstm_concated_dim = config.lstm_concated_dim
         self.lstm_n_layer = config.lstm_n_layer
+        self.lstm_combine = config.lstm_combine
         self.n_linear = config.n_linear
         self.n_directions = config.n_directions
         self.num_classes = config.num_classes
@@ -37,7 +38,7 @@ class AttBiLSTM(nn.Module):
 
         self.sm_layer = nn.Linear(self.lstm_concated_dim, self.num_classes)
 
-    def attention(self, lstm_output, h_n, x):
+    def attention(self, lstm_output):
         # # (batch_size, n_directions*lstm_n_layer, lstm_dim)->
         # # (n_directions, batch_size, lstm_dim)
         # h_n = h_n.view(self.lstm_n_layer, self.n_directions, self.batch_size, self.lstm_dim)[-1]
@@ -48,6 +49,11 @@ class AttBiLSTM(nn.Module):
 
         # (batch_size, sequence_len, lstm_concated_dim),(batch_size, lstm_concated_dim, 1)
         # ->(batch_size, sequence_len, 1)
+        if self.lstm_combine == 'add':
+            lstm_output = lstm_output.view(self.batch_size, self.sequence_len, 2,
+                                           self.lstm_dir_dim)
+            lstm_output = lstm_output.sum(dim=2)
+
         att = torch.bmm(torch.tanh(lstm_output), self.attention_weights.repeat(self.batch_size, 1, 1))
         att = F.softmax(att, dim=1)
         # (batch_size, sequence_len, lstm_concated_dim)->(batch_size, lstm_concated_dim, sequence_len)
@@ -61,7 +67,7 @@ class AttBiLSTM(nn.Module):
         return output
 
     def forward(self, x):
-        self.batch_size = len(x)
+        self.batch_size, self.sequence_len = x.shape
         # (batch_size, sequence_len, embedding_dim)
         x = self.embedding_layer(x)
 
@@ -70,7 +76,7 @@ class AttBiLSTM(nn.Module):
         lstm_output, (h_n, c_n) = self.lstm(x)
         lstm_output = self.lstm_dropout(lstm_output)
 
-        x = self.attention(lstm_output, h_n, x)
+        x = self.attention(lstm_output)
 
         for layer in self.linear_layers:
             x = layer(x)
