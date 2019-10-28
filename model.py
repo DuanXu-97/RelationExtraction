@@ -50,8 +50,7 @@ class AttBiLSTM(nn.Module):
         # (batch_size, sequence_len, lstm_concated_dim),(batch_size, lstm_concated_dim, 1)
         # ->(batch_size, sequence_len, 1)
         if self.lstm_combine == 'add':
-            lstm_output = lstm_output.view(self.batch_size, self.sequence_len, 2,
-                                           self.lstm_dir_dim)
+            lstm_output = lstm_output.view(self.batch_size, self.sequence_len, 2, self.lstm_dim)
             lstm_output = lstm_output.sum(dim=2)
 
         att = torch.bmm(torch.tanh(lstm_output), self.attention_weights.repeat(self.batch_size, 1, 1))
