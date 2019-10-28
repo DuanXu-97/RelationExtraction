@@ -16,7 +16,7 @@ class AttBiLSTMHP:
         self.n_linear = 1
         self.n_directions = 2
         self.lstm_combine = 'add'
-        self.attention = 'double'
+        self.attention_type = 'double'
         self.lstm_combined_dim = self.n_directions * self.lstm_dim if self.lstm_combine == 'concat' else self.lstm_dim
 
 

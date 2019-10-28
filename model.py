@@ -20,7 +20,7 @@ class AttBiLSTM(nn.Module):
         self.n_directions = config.n_directions
         self.num_classes = config.num_classes
         self.dropout_rate = config.dropout_rate
-        self.attention = config.attention
+        self.attention_type = config.attention_type
 
         self.criterion = nn.CrossEntropyLoss()
 
