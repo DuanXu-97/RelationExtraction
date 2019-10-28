@@ -61,6 +61,7 @@ class AttBiLSTM(nn.Module):
         return output
 
     def forward(self, x):
+        self.batch_size = len(x)
         # (batch_size, sequence_len, embedding_dim)
         x = self.embedding_layer(x)
 

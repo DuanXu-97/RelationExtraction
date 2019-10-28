@@ -46,18 +46,19 @@ def train(args):
         model = None
 
     model = model.to(device)
-    optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
+    optimizer = optim.Adadelta(filter(lambda p: p.requires_grad, model.parameters()), lr=1.0, rho=0.9,
+        eps=1e-6, weight_decay=0)
 
     if args.load_model:
         predictor.use_pretrained_model(args.load_model, device=device)
-        pdb.set_trace()
+        # pdb.set_trace()
         predictor.pred_sent(dataset.INPUT)
         tester.final_evaluate(predictor.model)
         return
 
     for epoch in range(config.epochs):
-        # if epoch - validator.best_epoch > 10:
-        #     return
+        if epoch - validator.best_epoch > 10:
+            return
 
         model.train()
         pbar = tqdm(train_dl)
