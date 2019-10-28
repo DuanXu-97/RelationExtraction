@@ -13,7 +13,7 @@ class AttBiLSTM(nn.Module):
         self.sequence_len = config.sequence_len
         self.embedding_size = config.embedding_size
         self.lstm_dim = config.lstm_dim
-        self.lstm_concated_dim = config.lstm_concated_dim
+        self.lstm_combined_dim = config.lstm_combined_dim
         self.lstm_n_layer = config.lstm_n_layer
         self.lstm_combine = config.lstm_combine
         self.n_linear = config.n_linear
@@ -31,12 +31,12 @@ class AttBiLSTM(nn.Module):
                             batch_first=True)
 
         self.lstm_dropout = nn.Dropout(p=self.dropout_rate)
-        self.attention_weights = nn.Parameter(torch.randn(1, self.lstm_concated_dim, 1))
-        self.linear_layers = nn.ModuleList([nn.Linear(self.lstm_concated_dim, self.lstm_concated_dim)
+        self.attention_weights = nn.Parameter(torch.randn(1, self.lstm_combined_dim, 1))
+        self.linear_layers = nn.ModuleList([nn.Linear(self.lstm_combined_dim, self.lstm_combined_dim)
                                             for _ in range(self.n_linear - 1)])
         self.linear_dropout = nn.Dropout(p=self.dropout_rate)
 
-        self.sm_layer = nn.Linear(self.lstm_concated_dim, self.num_classes)
+        self.sm_layer = nn.Linear(self.lstm_combined_dim, self.num_classes)
 
     def attention(self, lstm_output):
         # # (batch_size, n_directions*lstm_n_layer, lstm_dim)->
@@ -47,18 +47,20 @@ class AttBiLSTM(nn.Module):
         # # (batch_size, n_directions, lstm_dim)->(batch_size, 1, lstm_dim)
         # h_n = h_n.sum(dim=1)
 
-        # (batch_size, sequence_len, lstm_concated_dim),(batch_size, lstm_concated_dim, 1)
-        # ->(batch_size, sequence_len, 1)
         if self.lstm_combine == 'add':
+            # (batch_size, sequence_len, lstm_combined_dim)->(batch_size, sequence_len, 2, lstm_dim)
             lstm_output = lstm_output.view(self.batch_size, self.sequence_len, 2, self.lstm_dim)
+            # (batch_size, sequence_len, 2, lstm_dim)->(batch_size, sequence_len, 1, lstm_dim)
             lstm_output = lstm_output.sum(dim=2)
 
+        # (batch_size, sequence_len, lstm_combined_dim),(batch_size, lstm_combined_dim, 1)
+        # ->(batch_size, sequence_len, 1)
         att = torch.bmm(torch.tanh(lstm_output), self.attention_weights.repeat(self.batch_size, 1, 1))
         att = F.softmax(att, dim=1)
-        # (batch_size, sequence_len, lstm_concated_dim)->(batch_size, lstm_concated_dim, sequence_len)
+        # (batch_size, sequence_len, lstm_combined_dim)->(batch_size, lstm_combined_dim, sequence_len)
         lstm_output = lstm_output.transpose(1, 2)
-        # (batch_size, lstm_concated_dim, sequence_len),(batch_size, sequence_len, 1)
-        # ->(batch_size, lstm_concated_dim)
+        # (batch_size, lstm_combined_dim, sequence_len),(batch_size, sequence_len, 1)
+        # ->(batch_size, lstm_combined_dim)
         att = torch.bmm(lstm_output, att).squeeze(2)
 
         output = torch.tanh(att)
@@ -70,7 +72,7 @@ class AttBiLSTM(nn.Module):
         # (batch_size, sequence_len, embedding_dim)
         x = self.embedding_layer(x)
 
-        # lstm_output.shape = (batch_size, sequence_len, lstm_concated_dim)
+        # lstm_output.shape = (batch_size, sequence_len, lstm_combined_dim)
         # h_n.shape = (batch_size, n_directions*lstm_n_layer, lstm_dim)
         lstm_output, (h_n, c_n) = self.lstm(x)
         lstm_output = self.lstm_dropout(lstm_output)
