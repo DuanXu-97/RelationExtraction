@@ -47,7 +47,7 @@ def train(args):
 
     model = model.to(device)
     optimizer = optim.Adadelta(filter(lambda p: p.requires_grad, model.parameters()), lr=1.0, rho=0.9,
-        eps=1e-6, weight_decay=0)
+        eps=1e-6, weight_decay=1e-5)
 
     if args.load_model:
         predictor.use_pretrained_model(args.load_model, device=device)

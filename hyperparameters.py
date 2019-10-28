@@ -11,9 +11,9 @@ class AttBiLSTMHP:
         self.vocab_size = 100000
         self.sequence_len = 100
         self.embedding_size = 100
-        self.lstm_dim = 128
-        self.lstm_n_layer = 2
-        self.n_linear = 2
+        self.lstm_dim = 100
+        self.lstm_n_layer = 1
+        self.n_linear = 1
         self.n_directions = 2
         self.lstm_combine = 'add'
         self.lstm_combined_dim = self.n_directions * self.lstm_dim if self.lstm_combine == 'concat' else self.lstm_dim
