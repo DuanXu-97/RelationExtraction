@@ -20,6 +20,7 @@ class AttBiLSTM(nn.Module):
         self.n_directions = config.n_directions
         self.num_classes = config.num_classes
         self.dropout_rate = config.dropout_rate
+        self.attention = config.attention
 
         self.criterion = nn.CrossEntropyLoss()
 
@@ -31,7 +32,10 @@ class AttBiLSTM(nn.Module):
                             batch_first=True)
 
         self.lstm_dropout = nn.Dropout(p=self.dropout_rate)
-        self.attention_weights = nn.Parameter(torch.randn(1, self.lstm_combined_dim, 1))
+
+        self.attention_weights_1 = nn.Parameter(torch.randn(1, self.lstm_combined_dim, 1))
+        self.attention_weights_2 = nn.Parameter(torch.randn(1, self.lstm_combined_dim, 1))
+
         self.linear_layers = nn.ModuleList([nn.Linear(self.lstm_combined_dim, self.lstm_combined_dim)
                                             for _ in range(self.n_linear - 1)])
         self.linear_dropout = nn.Dropout(p=self.dropout_rate)
@@ -55,7 +59,10 @@ class AttBiLSTM(nn.Module):
 
         # (batch_size, sequence_len, lstm_combined_dim),(batch_size, lstm_combined_dim, 1)
         # ->(batch_size, sequence_len, 1)
-        att = torch.bmm(torch.tanh(lstm_output), self.attention_weights.repeat(self.batch_size, 1, 1))
+        att_1 = torch.bmm(torch.tanh(lstm_output), self.attention_weights_1.repeat(self.batch_size, 1, 1))
+        att_2 = torch.bmm(torch.tanh(lstm_output), self.attention_weights_2.repeat(self.batch_size, 1, 1))
+        att = torch.mean(torch.stack((att_1, att_2), dim=0), dim=0)
+
         att = F.softmax(att, dim=1)
         # (batch_size, sequence_len, lstm_combined_dim)->(batch_size, lstm_combined_dim, sequence_len)
         lstm_output = lstm_output.transpose(1, 2)
