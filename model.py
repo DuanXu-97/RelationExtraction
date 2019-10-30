@@ -21,21 +21,28 @@ class AttBiLSTM(nn.Module):
         self.hidden_dim_ent = config.hidden_dim_ent
         self.n_directions = config.n_directions
         self.num_classes = config.num_classes
-        self.dropout_rate = config.dropout_rate
+
+        self.embedding_dropout_rate = config.embedding_dropout_rate
+        self.lstm_dropout_rate = config.lstm_dropout_rate
+        self.linear_dropout_rate = config.linear_dropout_rate
+
         self.attention_type = config.attention_type
         self.linear_concated_dim = config.linear_concated_dim
         self.with_ent = config.with_ent
+        self.embedding_vectors = config.embedding_vectors
 
         self.criterion = nn.CrossEntropyLoss()
 
         self.embedding_layer = nn.Embedding(self.vocab_size, self.embedding_size)
+        self.embedding_layer.from_pretrained(self.embedding_vectors, padding_idx=1)
+        self.embedding_dropout = nn.Dropout(p=self.embedding_dropout_rate)
 
         self.lstm = nn.LSTM(self.embedding_size, self.lstm_dim,
                             num_layers=self.lstm_n_layer,
                             bidirectional=True,
                             batch_first=True)
 
-        self.lstm_dropout = nn.Dropout(p=self.dropout_rate)
+        self.lstm_dropout = nn.Dropout(p=self.lstm_dropout_rate)
 
         self.attention_weights_1 = nn.Parameter(torch.randn(1, self.lstm_combined_dim, 1))
         self.attention_weights_2 = nn.Parameter(torch.randn(1, self.lstm_combined_dim, 1))
@@ -45,7 +52,7 @@ class AttBiLSTM(nn.Module):
 
         self.linear_layer_ent = nn.Linear(self.embedding_size, self.hidden_dim_ent)
 
-        self.linear_dropout = nn.Dropout(p=self.dropout_rate)
+        self.linear_dropout = nn.Dropout(p=self.linear_dropout_rate)
 
         self.sm_layer = nn.Linear(self.linear_concated_dim, self.num_classes)
 
@@ -90,6 +97,7 @@ class AttBiLSTM(nn.Module):
         self.batch_size, self.sequence_len = x.shape
         # (batch_size, sequence_len, embedding_dim)
         x = self.embedding_layer(x)
+        x = self.embedding_dropout(x)
 
         # lstm_output.shape = (batch_size, sequence_len, lstm_combined_dim)
         # h_n.shape = (batch_size, n_directions*lstm_n_layer, lstm_dim)
@@ -106,7 +114,6 @@ class AttBiLSTM(nn.Module):
 
             ent1 = ent1.squeeze(dim=1)
             ent2 = ent2.squeeze(dim=1)
-
 
             x = torch.cat((x, ent1, ent2), dim=-1)
 

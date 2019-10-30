@@ -40,6 +40,7 @@ def train(args):
 
     if args.model == 'AttBiLSTM':
         config.num_classes = len(dataset.TGT.vocab)
+        config.embedding_vectors = dataset.INPUT.vocab.vectors
         model = AttBiLSTM(config)
     else:
         model = None
