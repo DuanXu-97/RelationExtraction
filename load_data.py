@@ -51,12 +51,6 @@ class Dataset:
                 'input_vocab': {
                     'itos': INPUT.vocab.itos, 'stoi': INPUT.vocab.stoi,
                 },
-                'ent1_vocab': {
-                    'itos': ENT1.vocab.itos, 'stoi': ENT1.vocab.stoi,
-                },
-                'ent2_vocab': {
-                    'itos': ENT2.vocab.itos, 'stoi': ENT2.vocab.stoi,
-                },
             }
             fwrite(json.dumps(writeout, indent=4), vocab_fname)
 
