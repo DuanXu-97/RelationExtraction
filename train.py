@@ -5,7 +5,7 @@ from load_data import *
 from model import *
 from hyperparameters import *
 from model import AttBiLSTM
-from evaluate import Validator, Predictor
+from evaluate import Validator
 from torch import optim
 from tqdm import tqdm
 
@@ -37,7 +37,6 @@ def train(args):
                        save_dir=args.save_dir, valid_or_test='test',
                        vocab_itos=dataset.INPUT.vocab.itos,
                        label_itos=dataset.TGT.vocab.itos)
-    predictor = Predictor(args.save_vocab_fname)
 
     if args.model == 'AttBiLSTM':
         config.num_classes = len(dataset.TGT.vocab)
@@ -50,10 +49,11 @@ def train(args):
         eps=1e-6, weight_decay=1e-5)
 
     if args.load_model:
-        predictor.use_pretrained_model(args.load_model, device=device)
-        # pdb.set_trace()
-        predictor.pred_sent(dataset.INPUT)
-        tester.final_evaluate(predictor.model)
+        checkpoint = torch.load(args.load_model)
+        model_config = checkpoint['config']
+        model.load_state_dict(checkpoint['model'])
+        model.eval()
+        tester.final_evaluate(model)
         return
 
     for epoch in range(config.epochs):
@@ -68,7 +68,11 @@ def train(args):
         for batch in pbar:
             batch_size = len(batch.tgt)
 
-            loss, acc = model.loss_n_acc(batch.input, batch.tgt)
+            if config.with_ent is True:
+                loss, acc = model.loss_n_acc(batch.input, batch.tgt, batch.ent1, batch.ent2)
+            else:
+                loss, acc = model.loss_n_acc(batch.input, batch.tgt)
+
             total_loss += loss.item() * batch_size
             cnt += batch_size
             n_correct += acc

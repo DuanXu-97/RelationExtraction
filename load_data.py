@@ -16,9 +16,11 @@ class Dataset:
 
         tokenize = lambda x: x.split()
         INPUT = Field(sequential=True, batch_first=True, tokenize=tokenize, lower=True)
+        ENT1 = Field(sequential=True, batch_first=True, lower=True)
+        ENT2 = Field(sequential=True, batch_first=True, lower=True)
         TGT = Field(sequential=True, batch_first=True)
         SHOW_INP = RawField()
-        fields = [('tgt', TGT), ('input', INPUT), ('show_inp', SHOW_INP), ]
+        fields = [('tgt', TGT), ('input', INPUT), ('show_inp', SHOW_INP), ('ent1', ENT1), ('ent2', ENT2)]
 
         datasets = TabularDataset.splits(
             fields=fields,
@@ -36,6 +38,8 @@ class Dataset:
         TGT.build_vocab(*datasets)
 
         self.INPUT = INPUT
+        self.ENT1 = ENT1
+        self.ENT2 = ENT2
         self.TGT = TGT
         self.train_ds, self.valid_ds, self.test_ds = datasets
 
@@ -46,6 +50,12 @@ class Dataset:
                 },
                 'input_vocab': {
                     'itos': INPUT.vocab.itos, 'stoi': INPUT.vocab.stoi,
+                },
+                'ent1_vocab': {
+                    'itos': ENT1.vocab.itos, 'stoi': ENT1.vocab.stoi,
+                },
+                'ent2_vocab': {
+                    'itos': ENT2.vocab.itos, 'stoi': ENT2.vocab.stoi,
                 },
             }
             fwrite(json.dumps(writeout, indent=4), vocab_fname)
