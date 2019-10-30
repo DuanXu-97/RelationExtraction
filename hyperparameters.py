@@ -16,8 +16,8 @@ class AttBiLSTMHP:
         self.embedding_size = 100
         self.embedding_vectors = None
         self.lstm_dim = 100
-        self.lstm_n_layer = 1
-        self.n_linear = 1
+        self.lstm_n_layer = 2
+        self.n_linear = 2
         self.n_linear_ent = 1
         self.hidden_dim_ent = 16
         self.n_directions = 2
