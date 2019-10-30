@@ -16,8 +16,8 @@ class Dataset:
 
         tokenize = lambda x: x.split()
         INPUT = Field(sequential=True, batch_first=True, tokenize=tokenize, lower=True)
-        ENT1 = Field(sequential=True, batch_first=True, lower=True)
-        ENT2 = Field(sequential=True, batch_first=True, lower=True)
+        ENT1 = Field(sequential=False, batch_first=True, lower=True)
+        ENT2 = Field(sequential=False, batch_first=True, lower=True)
         TGT = Field(sequential=True, batch_first=True)
         SHOW_INP = RawField()
         fields = [('tgt', TGT), ('input', INPUT), ('show_inp', SHOW_INP), ('ent1', ENT1), ('ent2', ENT2)]
