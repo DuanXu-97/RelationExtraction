@@ -26,7 +26,7 @@ class AttBiLSTMHP:
         self.lstm_combined_dim = self.n_directions * self.lstm_dim if self.lstm_combine == 'concat' else self.lstm_dim
 
         self.with_ent = True
-        self.linear_concated_dim = self.lstm_combined_dim + 2*self.hidden_dim_ent if self.with_ent is True else self.lstm_combined_dim
+        self.linear_concated_dim = self.lstm_combined_dim + self.hidden_dim_ent if self.with_ent is True else self.lstm_combined_dim
 
 
 

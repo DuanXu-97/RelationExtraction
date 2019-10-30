@@ -58,7 +58,7 @@ def train(args):
         return
 
     for epoch in range(config.epochs):
-        if epoch - validator.best_epoch > 10:
+        if epoch - validator.best_epoch > 20:
             return
 
         model.train()

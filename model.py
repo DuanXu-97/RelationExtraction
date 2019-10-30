@@ -114,7 +114,7 @@ class AttBiLSTM(nn.Module):
 
             ent1 = ent1.squeeze(dim=1)
             ent2 = ent2.squeeze(dim=1)
-            ent = torch.mean(torch.stack((ent1, ent2), dim=0), dim=0)
+            ent = (ent1 + ent2)/2
 
             x = torch.cat((x, ent), dim=-1)
 
