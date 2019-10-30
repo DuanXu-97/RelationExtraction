@@ -43,7 +43,7 @@ class AttBiLSTM(nn.Module):
         self.linear_layers = nn.ModuleList([nn.Linear(self.linear_concated_dim, self.linear_concated_dim)
                                             for _ in range(self.n_linear - 1)])
 
-        self.linear_layers_ent = nn.Linear(self.embedding_size, self.hidden_dim_ent)
+        self.linear_layer_ent = nn.Linear(self.embedding_size, self.hidden_dim_ent)
 
         self.linear_dropout = nn.Dropout(p=self.dropout_rate)
 
@@ -101,8 +101,11 @@ class AttBiLSTM(nn.Module):
         if self.with_ent is True:
             ent1 = self.embedding_layer(ent1)
             ent2 = self.embedding_layer(ent2)
-            ent1 = self.linear_layers_ent(ent1)
-            ent2 = self.linear_layers_ent(ent2)
+            ent1 = self.linear_layer_ent(ent1)
+            ent2 = self.linear_layer_ent(ent2)
+
+            ent1 = ent1.squeeze(dim=1)
+            ent2 = ent2.squeeze(dim=1)
 
             x = torch.cat((x, ent1, ent2), dim=-1)
 
