@@ -69,11 +69,11 @@ def gen_csv(json_data, csv_path):
     for line in json_data:
         sentence = line['sentence']
         csv_line = {
-            'tgt': line['label'].replace(',', '，').replace('\'', '‘').replace('\"', '“'),
-            'input': sentence.replace(',', '，').replace('\'', '‘').replace('\"', '“'),
+            'tgt': line['label'].replace(',', '').replace('\'', '').replace('\"', ''),
+            'input': sentence.replace(',', '').replace('\'', '').replace('\"', ''),
             'show_inp': sentence,
-            'ent1': line['ent1'].replace(',', '，').replace('\'', '‘').replace('\"', '“'),
-            'ent2': line['ent2'].replace(',', '，').replace('\'', '‘').replace('\"', '“'),
+            'ent1': line['ent1'].replace(',', '').replace('\'', '').replace('\"', ''),
+            'ent2': line['ent2'].replace(',', '').replace('\'', '').replace('\"', ''),
             'id': line['id'],
         }
         csv_data += [csv_line]
