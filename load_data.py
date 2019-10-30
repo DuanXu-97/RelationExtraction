@@ -36,6 +36,8 @@ class Dataset:
                           vectors=GloVe(name='6B', dim=100),
                           unk_init=torch.Tensor.normal_, )
         TGT.build_vocab(*datasets)
+        ENT1.build_vocab(*datasets)
+        ENT2.build_vocab(*datasets)
 
         self.INPUT = INPUT
         self.ENT1 = ENT1
@@ -50,6 +52,12 @@ class Dataset:
                 },
                 'input_vocab': {
                     'itos': INPUT.vocab.itos, 'stoi': INPUT.vocab.stoi,
+                },
+                'ent1_vocab': {
+                    'itos': ENT1.vocab.itos, 'stoi': ENT1.vocab.stoi,
+                },
+                'ent2_vocab': {
+                    'itos': ENT2.vocab.itos, 'stoi': ENT2.vocab.stoi,
                 },
             }
             fwrite(json.dumps(writeout, indent=4), vocab_fname)
