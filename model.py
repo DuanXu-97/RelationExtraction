@@ -107,6 +107,7 @@ class AttBiLSTM(nn.Module):
             ent1 = ent1.squeeze(dim=1)
             ent2 = ent2.squeeze(dim=1)
 
+
             x = torch.cat((x, ent1, ent2), dim=-1)
 
         for layer in self.linear_layers:
