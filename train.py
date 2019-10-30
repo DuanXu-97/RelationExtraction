@@ -38,6 +38,16 @@ def train(args):
                        vocab_itos=dataset.INPUT.vocab.itos,
                        label_itos=dataset.TGT.vocab.itos)
 
+    if args.load_model:
+        checkpoint = torch.load(args.load_model)
+        model_config = checkpoint['config']
+        model = AttBiLSTM(model_config)
+        model = model.to(device)
+        model.load_state_dict(checkpoint['model'])
+        model.eval()
+        tester.final_evaluate(model)
+        return
+
     if args.model == 'AttBiLSTM':
         config.num_classes = len(dataset.TGT.vocab)
         config.embedding_vectors = dataset.INPUT.vocab.vectors
@@ -49,13 +59,6 @@ def train(args):
     optimizer = optim.Adadelta(filter(lambda p: p.requires_grad, model.parameters()), lr=1.0, rho=0.9,
         eps=1e-6, weight_decay=1e-5)
 
-    if args.load_model:
-        checkpoint = torch.load(args.load_model)
-        model_config = checkpoint['config']
-        model.load_state_dict(checkpoint['model'])
-        model.eval()
-        tester.final_evaluate(model)
-        return
 
     for epoch in range(config.epochs):
         if epoch - validator.best_epoch > 20:
