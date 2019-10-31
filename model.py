@@ -93,7 +93,7 @@ class AttBiLSTM(nn.Module):
 
         return output
 
-    def forward(self, x, ent1, ent2):
+    def forward(self, x, ent1=None, ent2=None):
         self.batch_size, self.sequence_len = x.shape
         # (batch_size, sequence_len, embedding_dim)
         x = self.embedding_layer(x)
@@ -127,21 +127,21 @@ class AttBiLSTM(nn.Module):
 
         return logits
 
-    def loss(self, input, target, ent1, ent2):
+    def loss(self, input, target, ent1=None, ent2=None):
         logits = self.forward(input, ent1, ent2)
         logits_flat = logits.view(-1, logits.size(-1))
         target_flat = target.view(-1)
         loss = self.criterion(logits_flat, target_flat)  # mean_score per batch
         return loss
 
-    def predict(self, input, ent1, ent2):
+    def predict(self, input, ent1=None, ent2=None):
         logits = self.forward(input, ent1, ent2)
         logits[:, :2] = float('-inf')
         preds = logits.max(dim=-1)[1]
         preds = preds.detach().cpu().numpy().tolist()
         return preds
 
-    def loss_n_acc(self, input, target, ent1, ent2):
+    def loss_n_acc(self, input, target, ent1=None, ent2=None):
         logits = self.forward(input, ent1, ent2)
         logits_flat = logits.view(-1, logits.size(-1))
         target_flat = target.view(-1)
