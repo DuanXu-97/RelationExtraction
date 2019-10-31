@@ -10,17 +10,28 @@ from torchtext.data import Field, RawField, TabularDataset, BucketIterator, Iter
 from torchtext.vocab import GloVe
 
 
+def get_stop_words():
+    file_object = open('./data/stop_words.txt')
+    stop_words = []
+    for line in file_object.readlines():
+        line = line[:-1]
+        line = line.strip()
+        stop_words.append(line)
+    return stop_words
+
+
 class Dataset:
     def __init__(self, data_dir='./data', train_fname='train.csv', valid_fname='valid.csv', test_fname='test.csv',
                  vocab_fname='vocab.json'):
 
+        stop_words = get_stop_words()
+
         tokenize = lambda x: x.split()
-        INPUT = Field(sequential=True, batch_first=True, tokenize=tokenize, lower=True)
-        ENT1 = Field(sequential=False, batch_first=True, lower=True)
-        ENT2 = Field(sequential=False, batch_first=True, lower=True)
+        INPUT = Field(sequential=True, batch_first=True, tokenize=tokenize, lower=True, stop_words=stop_words)
+        ENT = Field(sequential=False, batch_first=True, lower=True)
         TGT = Field(sequential=True, batch_first=True)
         SHOW_INP = RawField()
-        fields = [('tgt', TGT), ('input', INPUT), ('show_inp', SHOW_INP), ('ent1', ENT1), ('ent2', ENT2)]
+        fields = [('tgt', TGT), ('input', INPUT), ('show_inp', SHOW_INP), ('ent1', ENT), ('ent2', ENT)]
 
         datasets = TabularDataset.splits(
             fields=fields,
@@ -36,12 +47,10 @@ class Dataset:
                           vectors=GloVe(name='6B', dim=100),
                           unk_init=torch.Tensor.normal_, )
         TGT.build_vocab(*datasets)
-        ENT1.build_vocab(*datasets)
-        ENT2.build_vocab(*datasets)
+        ENT.build_vocab(*datasets)
 
         self.INPUT = INPUT
-        self.ENT1 = ENT1
-        self.ENT2 = ENT2
+        self.ENT = ENT
         self.TGT = TGT
         self.train_ds, self.valid_ds, self.test_ds = datasets
 
@@ -54,10 +63,7 @@ class Dataset:
                     'itos': INPUT.vocab.itos, 'stoi': INPUT.vocab.stoi,
                 },
                 'ent1_vocab': {
-                    'itos': ENT1.vocab.itos, 'stoi': ENT1.vocab.stoi,
-                },
-                'ent2_vocab': {
-                    'itos': ENT2.vocab.itos, 'stoi': ENT2.vocab.stoi,
+                    'itos': ENT.vocab.itos, 'stoi': ENT.vocab.stoi,
                 },
             }
             fwrite(json.dumps(writeout, indent=4), vocab_fname)
