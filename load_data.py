@@ -27,7 +27,7 @@ class Dataset:
         stop_words = get_stop_words()
 
         tokenize = lambda x: x.split()
-        INPUT = Field(sequential=True, batch_first=True, tokenize=tokenize, lower=True, stop_words=stop_words)
+        INPUT = Field(sequential=True, batch_first=True, tokenize=tokenize, lower=True)
         ENT = Field(sequential=False, batch_first=True, lower=True)
         TGT = Field(sequential=True, batch_first=True)
         SHOW_INP = RawField()

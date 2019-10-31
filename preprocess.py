@@ -25,6 +25,13 @@ def train_valid_split(data, train_rate=0.8):
     return train, valid
 
 
+def train_dev_split(data, dev_size=800):
+    random.shuffle(data)
+    dev = data[:dev_size]
+    train = data[dev_size:]
+    return train, dev
+
+
 def preprocess(path):
     ENT_1_START = '<e1>'
     ENT_1_END = '</e1>'
@@ -92,7 +99,7 @@ if __name__ == '__main__':
     test_data = preprocess(test_path)
 
     data = dict()
-    data['train'], data['valid'] = train_valid_split(train_valid_data, train_rate=0.8)
+    data['train'], data['valid'] = train_dev_split(train_valid_data, dev_size=800)
     data['test'] = test_data
 
     train_csv_path = os.path.join(data_dir, 'train.csv')
