@@ -47,16 +47,13 @@ class Predictor:
                          for x in test_sen_ixs]]
         test_ent1_ixs = ENT_field.preprocess(test_ent1)
         test_ent2_ixs = ENT_field.preprocess(test_ent2)
-        test_ent1_ixs = ent_stoi[test_ent1_ixs] if test_ent1_ixs in ent_stoi else 0
-        test_ent2_ixs = ent_stoi[test_ent2_ixs] if test_ent2_ixs in ent_stoi else 0
+        test_ent1_ixs = [ent_stoi[test_ent1_ixs] if test_ent1_ixs in ent_stoi else 0]
+        test_ent2_ixs = [ent_stoi[test_ent2_ixs] if test_ent2_ixs in ent_stoi else 0]
 
         with torch.no_grad():
             test_sen_batch = torch.LongTensor(test_sen_ixs).to(device)
             test_ent1_batch = torch.LongTensor(test_ent1_ixs).to(device)
             test_ent2_batch = torch.LongTensor(test_ent2_ixs).to(device)
-
-            print(test_ent1_batch.shape)
-            print(test_ent2_batch.shape)
 
             output = model.predict(test_sen_batch, test_ent1_batch, test_ent2_batch)
             prediction = self.tgt_itos[output[0]]
@@ -82,6 +79,6 @@ if __name__ == '__main__':
     predictor.use_pretrained_model(args.model_path, device=device)
     prediction = predictor.pred_sent(args.input)
 
-    print(prediction)
+    print("relation: ", prediction)
 
 
