@@ -47,10 +47,8 @@ class Predictor:
                          for x in test_sen_ixs]]
         test_ent1_ixs = ENT_field.preprocess(test_ent1)
         test_ent2_ixs = ENT_field.preprocess(test_ent2)
-        test_ent1_ixs = [[ent_stoi[x] if x in ent_stoi else 0
-                         for x in test_ent1_ixs]]
-        test_ent2_ixs = [[ent_stoi[x] if x in ent_stoi else 0
-                         for x in test_ent2_ixs]]
+        test_ent1_ixs = ent_stoi[test_ent1_ixs] if test_ent1_ixs in ent_stoi else 0
+        test_ent2_ixs = ent_stoi[test_ent2_ixs] if test_ent2_ixs in ent_stoi else 0
 
         with torch.no_grad():
             test_sen_batch = torch.LongTensor(test_sen_ixs).to(device)
