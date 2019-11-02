@@ -2,6 +2,7 @@ from __future__ import division, print_function
 import os
 import json
 import torch
+import argparse
 from utils import fwrite, shell
 
 from model import AttBiLSTM
@@ -112,6 +113,3 @@ class Validator:
         stdout, _ = shell(cmd, stdout=True)
         fwrite(stdout, result_fname)
 
-
-if __name__ == '__main__':
-    pass

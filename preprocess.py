@@ -70,6 +70,28 @@ def preprocess(path):
     return data
 
 
+def sentence_preprocess(sentence):
+    ENT_1_START = '<e1>'
+    ENT_1_END = '</e1>'
+    ENT_2_START = '<e2>'
+    ENT_2_END = '</e2>'
+
+    nlp = NLP()
+    sentence = sentence.strip()
+
+    sentence = sentence.replace(ENT_1_START, ' ENT_1_START ')
+    sentence = sentence.replace(ENT_1_END, ' ENT_1_END ')
+    sentence = sentence.replace(ENT_2_START, ' ENT_2_START ')
+    sentence = sentence.replace(ENT_2_END, ' ENT_2_END ')
+
+    sentence = nlp.word_tokenize(sentence)
+
+    ent1 = sentence.split(' ENT_1_START ')[-1].split(' ENT_1_END ')[0]
+    ent2 = sentence.split(' ENT_2_START ')[-1].split(' ENT_2_END ')[0]
+
+    return sentence, ent1, ent2
+
+
 def gen_csv(json_data, csv_path):
     csv_data = list()
     csv_line = dict()

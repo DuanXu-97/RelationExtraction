@@ -62,7 +62,7 @@ class Dataset:
                 'input_vocab': {
                     'itos': INPUT.vocab.itos, 'stoi': INPUT.vocab.stoi,
                 },
-                'ent1_vocab': {
+                'ent_vocab': {
                     'itos': ENT.vocab.itos, 'stoi': ENT.vocab.stoi,
                 },
             }
