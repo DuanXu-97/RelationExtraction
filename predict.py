@@ -19,7 +19,6 @@ class Predictor:
     def use_pretrained_model(self, model_fname, device=torch.device('cpu')):
         self.device = device
         checkpoint = torch.load(model_fname)
-        model_opt = checkpoint['model_opt']
         model_config = checkpoint['config']
         model = AttBiLSTM(model_config)
         model.load_state_dict(checkpoint['model'])
