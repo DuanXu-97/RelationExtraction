@@ -32,6 +32,10 @@ class Predictor:
 
         test_sentence, test_ent1, test_ent2 = sentence_preprocess(test_sentence)
 
+        print("sentence: ", test_sentence)
+        print("ent1: ", test_ent1)
+        print("ent2: ", test_ent2)
+
         if model is None: model = self.model
         model.eval()
         device = next(model.parameters()).device
@@ -52,6 +56,9 @@ class Predictor:
             test_sen_batch = torch.LongTensor(test_sen_ixs).to(device)
             test_ent1_batch = torch.LongTensor(test_ent1_ixs).to(device)
             test_ent2_batch = torch.LongTensor(test_ent2_ixs).to(device)
+
+            print(test_ent1_batch.shape)
+            print(test_ent2_batch.shape)
 
             output = model.predict(test_sen_batch, test_ent1_batch, test_ent2_batch)
             prediction = self.tgt_itos[output[0]]
